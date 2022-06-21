@@ -1,7 +1,8 @@
 package migration
 
 import (
-	"github.com/pressly/goose"
+	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/pressly/goose/v3"
 
 	"InnoUserService/pkg/settings"
 )
@@ -16,7 +17,7 @@ func UserMigrationUp(s *settings.DBSetting) error {
 		return err
 	}
 	defer db.Close()
-	dir := "./migrations/"
+	dir := "pkg/migrations/"
 
 	if err := goose.Up(db, dir); err != nil {
 		return err
@@ -34,7 +35,7 @@ func UserMigrationDown(s *settings.DBSetting) error {
 		return err
 	}
 	defer db.Close()
-	dir := "./migrations/"
+	dir := "pkg/migrations/"
 
 	if err := goose.Down(db, dir); err != nil {
 		return err

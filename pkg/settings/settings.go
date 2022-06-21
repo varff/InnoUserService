@@ -3,7 +3,6 @@ package settings
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/spf13/viper"
 )
@@ -20,7 +19,7 @@ type DBSetting struct {
 func NewDBSetting() (*DBSetting, error) {
 	viper.SetConfigType("env")
 	viper.SetConfigName("conf")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath("./pkg/settings/")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return nil, err
@@ -60,11 +59,10 @@ func UserConString(setting *DBSetting) (string, error) {
 	return fmt.Sprintf("user=" + UserID + " password=" + Pass + " host=" + Host + " port=" + Port + " database=" + Db), nil
 }
 
-func GetEnvDefault(key, defaultValue string) (string, error) {
-	value := os.Getenv(key)
+func GetEnvDefault(value, defaultValue string) (string, error) {
 	if value == "" {
 		if defaultValue == "" {
-			return defaultValue, errors.New("environment variable " + key + " isn't set")
+			return defaultValue, errors.New("environment variable isn't set")
 		}
 		return defaultValue, nil
 	}
