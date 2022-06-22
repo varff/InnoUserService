@@ -34,7 +34,7 @@ func NewDBSetting() (*DBSetting, error) {
 	return s, nil
 }
 
-func UserConString(setting *DBSetting) (string, error) {
+func DBConnection(setting *DBSetting) (string, error) {
 	UserID, err := GetEnvDefault(setting.DBUser, "user")
 	if err != nil {
 		return "", err
@@ -62,7 +62,7 @@ func UserConString(setting *DBSetting) (string, error) {
 func GetEnvDefault(value, defaultValue string) (string, error) {
 	if value == "" {
 		if defaultValue == "" {
-			return defaultValue, errors.New("environment variable isn't set")
+			return "", errors.New("environment variable isn't set")
 		}
 		return defaultValue, nil
 	}

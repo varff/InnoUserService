@@ -19,7 +19,7 @@ type Repository struct {
 }
 
 func NewRepository(dbSettings *settings.DBSetting) (*Repository, error) {
-	connStr, err := settings.UserConString(dbSettings)
+	connStr, err := settings.DBConnection(dbSettings)
 	db, err := sqlx.Open("pgx", connStr)
 	if err != nil {
 		return nil, err

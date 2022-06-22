@@ -7,8 +7,12 @@ import (
 	"InnoUserService/pkg/settings"
 )
 
+const (
+	dir = "configs"
+)
+
 func UserMigrationUp(s *settings.DBSetting) error {
-	connStr, err := settings.UserConString(s)
+	connStr, err := settings.DBConnection(s)
 	if err != nil {
 		return err
 	}
@@ -17,8 +21,6 @@ func UserMigrationUp(s *settings.DBSetting) error {
 		return err
 	}
 	defer db.Close()
-	dir := "pkg/migrations/"
-
 	if err := goose.Up(db, dir); err != nil {
 		return err
 	}
@@ -26,7 +28,7 @@ func UserMigrationUp(s *settings.DBSetting) error {
 }
 
 func UserMigrationDown(s *settings.DBSetting) error {
-	connStr, err := settings.UserConString(s)
+	connStr, err := settings.DBConnection(s)
 	if err != nil {
 		return err
 	}
@@ -35,8 +37,6 @@ func UserMigrationDown(s *settings.DBSetting) error {
 		return err
 	}
 	defer db.Close()
-	dir := "pkg/migrations/"
-
 	if err := goose.Down(db, dir); err != nil {
 		return err
 	}
