@@ -59,12 +59,13 @@ func DBConnection(setting *DBSetting) (string, error) {
 	return fmt.Sprintf("user=" + UserID + " password=" + Pass + " host=" + Host + " port=" + Port + " database=" + Db), nil
 }
 
-func GetEnvDefault(value, defaultValue string) (string, error) {
-	if value == "" {
+func GetEnvDefault(key, defaultValue string) (string, error) {
+	if key == "" {
 		if defaultValue == "" {
 			return "", errors.New("environment variable isn't set")
 		}
 		return defaultValue, nil
 	}
-	return value, nil
+
+	return key, nil
 }

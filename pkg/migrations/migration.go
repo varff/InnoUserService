@@ -11,7 +11,7 @@ const (
 	dir = "pkg/migrations"
 )
 
-func UserMigrationUp(s *settings.DBSetting) error {
+func MigrationUp(s *settings.DBSetting) error {
 	connStr, err := settings.DBConnection(s)
 	if err != nil {
 		return err

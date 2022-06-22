@@ -12,7 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("DB settings loading error: %s: ", err)
 	}
-	err = migration.UserMigrationUp(dbSettings)
+	err = migration.MigrationUp(dbSettings)
 	if err != nil {
 		log.Fatalf("migration up error: %s", err)
 	}
