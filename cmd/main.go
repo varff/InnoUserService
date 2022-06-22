@@ -17,8 +17,4 @@ func main() {
 		log.Fatalf("migration up error: %s", err)
 	}
 
-	err = migration.UserMigrationDown(dbSettings)
-	if err != nil {
-		log.Fatalf("migration down error: %s", err)
-	}
 }

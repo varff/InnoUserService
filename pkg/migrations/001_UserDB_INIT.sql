@@ -1,4 +1,5 @@
 -- +goose Up
+-- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users
 (
     Id      serial primary key,
@@ -11,8 +12,11 @@ CREATE TABLE IF NOT EXISTS users
 );
 
 CREATE INDEX IF NOT EXISTS idx_phone ON users(Phone);
+-- +goose StatementEnd
 
 -- +goose Down
+-- +goose StatementBegin
 DROP TABLE IF EXISTS users;
 
 DROP INDEX IF EXISTS idx_phone;
+-- +goose StatementEnd

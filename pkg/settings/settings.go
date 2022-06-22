@@ -19,7 +19,7 @@ type DBSetting struct {
 func NewDBSetting() (*DBSetting, error) {
 	viper.SetConfigType("env")
 	viper.SetConfigName("conf")
-	viper.AddConfigPath("./pkg/settings/")
+	viper.AddConfigPath("configs/")
 	err := viper.ReadInConfig()
 	if err != nil {
 		return nil, err

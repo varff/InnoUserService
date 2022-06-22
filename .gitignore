@@ -120,3 +120,4 @@ test/main.go
 # End of https://www.toptal.com/developers/gitignore/api/goland+all,go
 /migration/UserDB_TEST_DATA.sql
 /pkg/migrations/UserDB_TEST_DATA.sql
+/configs/
