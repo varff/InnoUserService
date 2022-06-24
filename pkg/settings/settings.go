@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+
 )
 
 type DBSetting struct {
@@ -17,6 +18,7 @@ type DBSetting struct {
 	SSLMode    string
 }
 
+
 type AppSettings struct {
 	Salt       string
 	Port       int32
@@ -27,6 +29,7 @@ func NewAppSettings() (*AppSettings, error) {
 	s := &AppSettings{}
 	var err error
 	s.Salt, err = GetEnvDefault("JWT_SALT", "safeless")
+
 	if err != nil {
 		return s, err
 	}
@@ -54,10 +57,12 @@ func NewAppSettings() (*AppSettings, error) {
 	return &AppSettings{}, nil
 }
 
+
 func NewDBSetting() (*DBSetting, error) {
 	s := &DBSetting{}
 	var err error
 	s.DBUser, err = GetEnvDefault("USERID", "user")
+
 	if err != nil {
 		return s, err
 	}
@@ -85,7 +90,9 @@ func NewDBSetting() (*DBSetting, error) {
 }
 
 func GetEnvDefault(key, defaultValue string) (string, error) {
+
 	value := os.Getenv(key)
+
 	if key == "" {
 		if defaultValue == "" {
 			return "", errors.New("environment variable isn't set")
@@ -93,5 +100,7 @@ func GetEnvDefault(key, defaultValue string) (string, error) {
 		return defaultValue, nil
 	}
 
+
 	return value, nil
+
 }

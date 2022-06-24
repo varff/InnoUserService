@@ -14,7 +14,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("DB settings loading error: %s: ", err)
 	}
+
 	_, err = repo.NewRepository(dbSettings)
+
 	if err != nil {
 		log.Fatalf("DB connection loading error: %s: ", err)
 	}

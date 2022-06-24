@@ -23,6 +23,7 @@ type Repository struct {
 	*sqlx.DB
 }
 
+
 func NewRepository(dbSetting *settings.DBSetting) (*Repository, error) {
 	connStr := fmt.Sprintf("user=" + dbSetting.DBUser + " password=" + dbSetting.DBPassword + " host=" + dbSetting.DBHost + " port=" + dbSetting.DBPort + " database=" + dbSetting.DBName)
 	db, err := sqlx.Open("pgx", connStr)

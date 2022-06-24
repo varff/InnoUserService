@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 
+
 FROM golang:1.18 AS builder
 WORKDIR ./home
 COPY go.mod ./
@@ -11,3 +12,4 @@ COPY . ./
 RUN go build -o out ./cmd/main.go
 
 CMD [ "./out" ]
+
