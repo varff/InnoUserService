@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
-
-	"github.com/spf13/viper"
+	"strconv"
+	"time"
 )
 
 type DBSetting struct {
@@ -17,56 +17,81 @@ type DBSetting struct {
 	SSLMode    string
 }
 
-func NewDBSetting() (*DBSetting, error) {
-	viper.SetConfigType("env")
-	viper.SetConfigName("conf")
-	viper.AddConfigPath(".")
-	err := viper.ReadInConfig()
-	if err != nil {
-		return nil, err
-	}
-	s := &DBSetting{}
-	s.DBUser = viper.GetString("USERID")
-	s.DBPassword = viper.GetString("USERPASS")
-	s.DBPort = viper.GetString("USERPORT")
-	s.DBName = viper.GetString("USERDB")
-	s.DBHost = viper.GetString("USERHOSTNAME")
-	s.SSLMode = viper.GetString("USERSSL")
-	return s, nil
+type AppSettings struct {
+	Salt       string
+	Port       int32
+	TTLMinutes time.Duration
 }
 
-func UserConString(setting *DBSetting) (string, error) {
-	UserID, err := GetEnvDefault(setting.DBUser, "user")
+func NewAppSettings() (*AppSettings, error) {
+	s := &AppSettings{}
+	var err error
+	s.Salt, err = GetEnvDefault("JWT_SALT", "safeless")
 	if err != nil {
-		return "", err
+		return s, err
 	}
-	Pass, err := GetEnvDefault(setting.DBPassword, "secret")
+	portStr, err := GetEnvDefault("APP_PORT", "8000")
 	if err != nil {
-		return "", err
+		return s, err
 	}
-	Port, err := GetEnvDefault(setting.DBPort, "5432")
+	port, err := strconv.Atoi(portStr)
 	if err != nil {
-		return "", err
+		port = 8000
 	}
-	Db, err := GetEnvDefault(setting.DBName, "postgres")
+	s.Port = int32(port)
+	TTLStr, err := GetEnvDefault("APP_TTL", "8000")
 	if err != nil {
-		return "", err
+		return s, err
 	}
-	Host, err := GetEnvDefault(setting.DBHost, "localhost")
+	TTL, err := strconv.Atoi(TTLStr)
 	if err != nil {
-		return "", err
+		TTL = 60
 	}
+	s.TTLMinutes, err = time.ParseDuration(fmt.Sprintf("%dm", TTL))
+	if err != nil {
+		s.TTLMinutes = time.Hour
+	}
+	return &AppSettings{}, nil
+}
 
-	return fmt.Sprintf("user=" + UserID + " password=" + Pass + " host=" + Host + " port=" + Port + " database=" + Db), nil
+func NewDBSetting() (*DBSetting, error) {
+	s := &DBSetting{}
+	var err error
+	s.DBUser, err = GetEnvDefault("USERID", "user")
+	if err != nil {
+		return s, err
+	}
+	s.DBPassword, err = GetEnvDefault("USERPASS", "secret")
+	if err != nil {
+		return s, err
+	}
+	s.DBPort, err = GetEnvDefault("USERPORT", "5432")
+	if err != nil {
+		return s, err
+	}
+	s.DBName, err = GetEnvDefault("USERDB", "postgres")
+	if err != nil {
+		return s, err
+	}
+	s.DBHost, err = GetEnvDefault("USERHOSTNAME", "localhost")
+	if err != nil {
+		return s, err
+	}
+	s.SSLMode, err = GetEnvDefault("USERSSL", "false")
+	if err != nil {
+		return s, err
+	}
+	return s, nil
 }
 
 func GetEnvDefault(key, defaultValue string) (string, error) {
 	value := os.Getenv(key)
-	if value == "" {
+	if key == "" {
 		if defaultValue == "" {
-			return defaultValue, errors.New("environment variable " + key + " isn't set")
+			return "", errors.New("environment variable isn't set")
 		}
 		return defaultValue, nil
 	}
+
 	return value, nil
 }

@@ -1,42 +1,18 @@
 package migration
 
 import (
-	"github.com/pressly/goose"
+	"database/sql"
 
-	"InnoUserService/pkg/settings"
+	_ "github.com/jackc/pgx/v4/stdlib"
+	"github.com/pressly/goose/v3"
 )
 
-func UserMigrationUp(s *settings.DBSetting) error {
-	connStr, err := settings.UserConString(s)
-	if err != nil {
-		return err
-	}
-	db, err := goose.OpenDBWithDriver("pgx", connStr)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	dir := "./migrations/"
+const (
+	dir = "pkg/migrations"
+)
 
+func MigrationUp(db *sql.DB) error {
 	if err := goose.Up(db, dir); err != nil {
-		return err
-	}
-	return nil
-}
-
-func UserMigrationDown(s *settings.DBSetting) error {
-	connStr, err := settings.UserConString(s)
-	if err != nil {
-		return err
-	}
-	db, err := goose.OpenDBWithDriver("pgx", connStr)
-	if err != nil {
-		return err
-	}
-	defer db.Close()
-	dir := "./migrations/"
-
-	if err := goose.Down(db, dir); err != nil {
 		return err
 	}
 	return nil
