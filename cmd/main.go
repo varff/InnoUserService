@@ -3,18 +3,22 @@ package main
 import (
 	"log"
 
-	migration "InnoUserService/pkg/migrations"
+	"InnoUserService/pkg/repo"
 	"InnoUserService/pkg/settings"
 )
 
 func main() {
+
 	dbSettings, err := settings.NewDBSetting()
+
 	if err != nil {
 		log.Fatalf("DB settings loading error: %s: ", err)
 	}
-	err = migration.MigrationUp(dbSettings)
+
+	_, err = repo.NewRepository(dbSettings)
+
 	if err != nil {
-		log.Fatalf("migration up error: %s", err)
+		log.Fatalf("DB connection loading error: %s: ", err)
 	}
 
 }

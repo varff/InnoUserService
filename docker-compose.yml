@@ -2,18 +2,20 @@ version: '3.8'
 
 services:
   web:
+    container_name: user
     restart: on-failure
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8000:8000"
     depends_on:
       - db
     env_file:
       - configs/conf.env
 
   db:
+    container_name: user_db
     restart: on-failure
     image: postgres:latest
     env_file:

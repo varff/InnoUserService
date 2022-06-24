@@ -5,6 +5,5 @@ type User struct {
 	Password  string
 	Phone     int32
 	Email     string
-	Rate      int32
 	IsAnalyst string
 }
