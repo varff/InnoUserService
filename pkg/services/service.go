@@ -1,10 +1,9 @@
 package services
 
 import (
-	"net/http"
+	"errors"
 
-	"github.com/gin-gonic/gin"
-
+	"InnoUserService/pkg/models"
 	"InnoUserService/pkg/repo"
 	"InnoUserService/pkg/settings"
 )
@@ -15,20 +14,28 @@ type Service struct {
 }
 
 type IService interface {
-	Delete(c *gin.Context) error
+	Delete(phone int32) error
+	Update(input models.RegisterModel) error
 }
 
-func (s Service) Delete(c *gin.Context) error {
-	var phone int32
-	if err := c.ShouldBindJSON(&phone); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
-		return err
+func (s Service) Delete(phone int32) error {
+	if err := s.repo.DeleteUser(phone); err != nil {
+		return errors.New("invalid phone number: " + err.Error())
 	}
-	err := s.repo.DeleteUser(phone)
+	return nil
+}
+
+func (s Service) Update(input models.RegisterModel) error {
+	_, err := s.repo.GetUserByPhone(input.Phone)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid phone number")
-		return err
+		return errors.New("invalid phone number: " + err.Error())
 	}
-	c.JSON(http.StatusOK, "Success")
-	return err
+	pass, err := hashPassword(input.Pass)
+	if err != nil {
+		return errors.New("wrong password: " + err.Error())
+	}
+	if err = s.repo.UpdateUser(input.Name, pass, input.Email, input.Phone); err != nil {
+		return errors.New("update error: " + err.Error())
+	}
+	return nil
 }

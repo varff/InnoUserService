@@ -1,79 +1,57 @@
 package services
 
 import (
-	"net/http"
+	"errors"
 	"os"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 
 	"InnoUserService/pkg/models"
 )
 
 type IAuth interface {
-	Login(c *gin.Context) (string, error)
-	Register(c *gin.Context) (string, error)
+	Login(input models.LoginModel) (string, error)
+	Register(input models.RegisterModel) (string, error)
+	CreateToken(userid uint64, TTL time.Duration) (string, error)
 }
 
-func (s Service) Login(c *gin.Context) (string, error) {
-	var (
-		user models.User
-		u    models.LoginModel
-	)
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
-		return "", err
-	}
-	user, err := s.repo.GetUserByPhone(u.Phone)
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid phone number")
-		return "", err
-	}
-
-	if checkPasswordHash(u.Pass, user.Password) {
-		c.JSON(http.StatusUnauthorized, "Please provide valid login details")
-		return "", nil
-	}
-	token, err := createToken(uint64(user.Phone), s.settings.TTLMinutes)
+func (s Service) Login(input models.LoginModel) (string, error) {
+	var user models.User
+	user, err := s.repo.GetUserByPhone(input.Phone)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, err)
 		return "", err
 	}
-	c.JSON(http.StatusOK, token)
+	if !checkPasswordHash(input.Pass, user.Password) {
+		return "", errors.New("wrong password: " + err.Error())
+	}
+	token, err := CreateToken(uint64(user.Phone), s.settings.TTLMinutes)
+	if err != nil {
+		return "", err
+	}
 	return token, nil
 }
 
-func (s Service) Register(c *gin.Context) (string, error) {
-	var (
-		user models.User
-		u    models.RegisterModel
-	)
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
-		return "", err
-	}
-	user, err := s.repo.GetUserByPhone(u.Phone)
-	if err := c.ShouldBindJSON(&u); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid phone number")
-		return "", err
-	}
-	pass, err := hashPassword(u.Pass)
+func (s Service) Register(input models.RegisterModel) (string, error) {
+	var user models.User
+	user, err := s.repo.GetUserByPhone(input.Phone)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, "Invalid pass")
+		return "", errors.New("invalid phone number: " + err.Error())
 	}
-	err = s.repo.AddUser(u.Name, pass, u.Email, u.Phone)
-	token, err := createToken(uint64(user.Phone), s.settings.TTLMinutes)
+	pass, err := hashPassword(input.Pass)
 	if err != nil {
-		c.JSON(http.StatusUnprocessableEntity, err)
+		return "", errors.New("wrong password: " + err.Error())
+	}
+	err = s.repo.AddUser(input.Name, pass, input.Email, input.Phone)
+	token, err := CreateToken(uint64(user.Phone), s.settings.TTLMinutes)
+	if err != nil {
 		return "", err
 	}
-	c.JSON(http.StatusOK, token)
 	return token, nil
 }
 
-func createToken(userid uint64, TTL time.Duration) (string, error) {
+func CreateToken(userid uint64, TTL time.Duration) (string, error) {
 	var err error
 	atClaims := jwt.MapClaims{}
 	atClaims["authorized"] = true

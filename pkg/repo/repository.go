@@ -17,12 +17,12 @@ type IRepository interface {
 	GetUserByMail(mail string) (models.User, error)
 	GetUserByPhone(phone int32) (models.User, error)
 	GetUserId(phone int32) (int32, error)
+	UpdateUser(name, password, email string, phone int32) error
 }
 
 type Repository struct {
 	*sqlx.DB
 }
-
 
 func NewRepository(dbSetting *settings.DBSetting) (*Repository, error) {
 	connStr := fmt.Sprintf("user=" + dbSetting.DBUser + " password=" + dbSetting.DBPassword + " host=" + dbSetting.DBHost + " port=" + dbSetting.DBPort + " database=" + dbSetting.DBName)
@@ -94,4 +94,10 @@ func (db Repository) GetUserId(phone int32) (int32, error) {
 	row := db.QueryRow(query, phone)
 	err := row.Scan(&result)
 	return result, err
+}
+
+func (db Repository) UpdateUser(name, password, email string, phone int32) error {
+	query := "update users set name=$1, pass=$2, email=$3 where phone=$4"
+	_, err := db.Exec(query, name, password, email, phone)
+	return err
 }
