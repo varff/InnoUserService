@@ -1,8 +1,7 @@
 package services
 
 import (
-	"errors"
-
+	"InnoUserService/pkg/apperrors"
 	"InnoUserService/pkg/models"
 	"InnoUserService/pkg/repo"
 	"InnoUserService/pkg/settings"
@@ -20,7 +19,7 @@ type IService interface {
 
 func (s Service) Delete(phone int32) error {
 	if err := s.repo.DeleteUser(phone); err != nil {
-		return errors.New("invalid phone number: " + err.Error())
+		return apperrors.Wrapper(apperrors.ErrPhoneNotFound, err)
 	}
 	return nil
 }
@@ -28,14 +27,14 @@ func (s Service) Delete(phone int32) error {
 func (s Service) Update(input models.RegisterModel) error {
 	_, err := s.repo.GetUserByPhone(input.Phone)
 	if err != nil {
-		return errors.New("invalid phone number: " + err.Error())
+		return apperrors.Wrapper(apperrors.ErrPhoneNotFound, err)
 	}
 	pass, err := hashPassword(input.Pass)
 	if err != nil {
-		return errors.New("wrong password: " + err.Error())
+		return apperrors.Wrapper(apperrors.ErrWrongPass, err)
 	}
 	if err = s.repo.UpdateUser(input.Name, pass, input.Email, input.Phone); err != nil {
-		return errors.New("update error: " + err.Error())
+		return apperrors.Wrapper(apperrors.ErrUpdate, err)
 	}
 	return nil
 }
